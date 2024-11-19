@@ -11,6 +11,8 @@ public class DodgeballAgent : Agent
     public float ballCollisionReward = 1f;
     public float wallCollisionReward = -1f;
     public float playerSpeed = 3f;
+    public float rotationSpeed = 200f; 
+
     [SerializeField] private Transform targetTransform;
     [SerializeField] List<GameObject> balls;
     [SerializeField] float distanceToPickUp = 2f;
@@ -41,8 +43,16 @@ public class DodgeballAgent : Agent
     public override void OnActionReceived(ActionBuffers actions) {
         Debug.Log("Action Recieved");
 
-        float moveX = actions.ContinuousActions[0];
-        float moveZ = actions.ContinuousActions[1];
+        float moveInput = actions.ContinuousActions[0]; // Move forward/backward
+        float rotateInput = actions.ContinuousActions[1]; // Rotation (left/right)
+
+        Vector3 move = transform.forward * moveInput * playerSpeed * Time.deltaTime;
+        transform.position += move;
+
+        float rotation = rotateInput * rotationSpeed * Time.deltaTime;
+        transform.Rotate(0, rotation, 0);
+
+
         int ball_action = actions.DiscreteActions[0];
 
         if (ball_action == 1) {
@@ -53,7 +63,6 @@ public class DodgeballAgent : Agent
 
         }
 
-        transform.position += new Vector3(moveX, 0, moveZ) * Time.deltaTime * playerSpeed;
     }
 
     public override void Heuristic(in ActionBuffers actionsOut) {
